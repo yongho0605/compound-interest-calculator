@@ -10,9 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.11.2",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "nuxt": "^3.11.2"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
@@ -22,12 +20,13 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.5",
     "prettier": "^3.3.1",
-    "prettier-plugin-tailwindcss": "^0.6.2"
+    "prettier-plugin-tailwindcss": "^0.6.2",
+    "typescript": "^5.4.5"
   },
   "lint-staged": {
     "./**/*.{js,jsx,ts,tsx,vue}": [
       "eslint --fix",
-			"prettier --write"
+      "prettier --write"
     ]
   }
 }
