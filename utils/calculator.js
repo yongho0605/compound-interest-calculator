@@ -11,8 +11,18 @@ const monthsConverter = (unit) => {
   }
 }
 
-const convertToPercentage = (value) => value * 0.01
+const convertToHundredth = (value) => value * 0.01
+const convertToPercentage = (value) => value * 100
 const withholdingTaxRate = 15.4
+const calculateRateOfReturn = (totalAmount, totalInvestment) => {
+  const originRORValue = (totalAmount - totalInvestment) / totalInvestment
+  const purifiedRORValue = truncateTwoDecimalPlaces(convertToPercentage(originRORValue))
+
+  if (purifiedRORValue === Infinity) {
+    return 0
+  }
+  return purifiedRORValue
+}
 
 export const currencyFormatter = (value) => {
   const tenK = '만 원'
@@ -27,20 +37,20 @@ export const currencyFormatter = (value) => {
     const result = value / 100000000
     return result.toLocaleString('ko-KR') + trillion
   }
-
   return result.toLocaleString('ko-KR') + tenK
 }
+
 export const truncateTwoDecimalPlaces = (value) => parseFloat(value.toFixed(2))
 export const convertToKoreaCurrency = (value) => value.toLocaleString('ko-KR', { style: 'currency', currency: 'KRW' })
 export const calculator = ({ currentInvestmentAmount, monthlyInvestment, InterestRate, InterestUnit, months }) => {
   let _currentInvestmentAmount = currentInvestmentAmount
   const result = []
   const investmentPeriod = months * monthsConverter(InterestUnit)
-  InterestRate = convertToPercentage(InterestRate)
+  InterestRate = convertToHundredth(InterestRate)
 
   for (let i = 1; i <= investmentPeriod; i++) {
     const dividend = Math.floor(_currentInvestmentAmount * InterestRate)
-    const withholdingTax = dividend * convertToPercentage(withholdingTaxRate)
+    const withholdingTax = dividend * convertToHundredth(withholdingTaxRate)
     const roundedWithholdingTax = truncateTwoDecimalPlaces(withholdingTax)
 
     _currentInvestmentAmount = _currentInvestmentAmount + dividend + monthlyInvestment
@@ -50,13 +60,15 @@ export const calculator = ({ currentInvestmentAmount, monthlyInvestment, Interes
   const totalWithholdingTax = result.reduce((acc, { withholdingTax }) => acc + withholdingTax, 0)
   const totalPrincipalInvestment = monthlyInvestment * investmentPeriod
   const finalHoldingAmount = result[result.length - 1].valuation + result[result.length - 1].dividend
+  const rateOfReturn = calculateRateOfReturn(finalHoldingAmount, totalPrincipalInvestment)
 
   return {
     data: result,
     total: {
       withholdingTax: truncateTwoDecimalPlaces(totalWithholdingTax),
       principalInvestment: totalPrincipalInvestment,
-      finalHoldingAmount
+      finalHoldingAmount,
+      rateOfReturn
     }
   }
 }

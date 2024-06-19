@@ -26,7 +26,7 @@
         <tr v-if="data.length" class="grid grid-cols-4 border-t border-slate-700">
           <th class="border-r border-slate-700"></th>
           <th class="border-r border-slate-700">투자 금액</th>
-          <th class="border-r border-slate-700">분배금</th>
+          <th class="border-r border-slate-700">배당금</th>
           <th>원천징수 세액</th>
         </tr>
         <tr v-for="item in data" :key="item.month" class="grid grid-cols-4 border-t border-slate-700">
@@ -39,10 +39,12 @@
     </div>
     <div class="flex w-full gap-4 text-xl font-bold">
       <span v-if="total.withholdingTax > 0">총 원천징수 세액: {{ currencyFormatter(total.withholdingTax) }}</span>
-      /
+
       <span v-if="total.principalInvestment">총 투자 원금: {{ currencyFormatter(total.principalInvestment) }}</span>
-      /
+
       <span v-if="total.finalHoldingAmount">최종 보유금: {{ currencyFormatter(total.finalHoldingAmount) }}</span>
+
+      <span v-if="total.rateOfReturn" class="text-red-600">수익률: {{ total.rateOfReturn }}%</span>
     </div>
   </div>
 </template>
@@ -53,11 +55,11 @@ import { truncateTwoDecimalPlaces, convertToKoreaCurrency, currencyFormatter } f
 const { MONTHLY, YEARLY } = investmentPeriodUnits
 
 const calculateTarget = reactive({
-  currentInvestmentAmount: 710,
-  monthlyInvestment: 100,
-  InterestRate: 1.25,
-  InterestUnit: YEARLY,
-  months: 6
+  currentInvestmentAmount: 0,
+  monthlyInvestment: 0,
+  InterestRate: 0,
+  InterestUnit: MONTHLY,
+  months: 1
 })
 const data = ref([])
 const total = ref({ withholdingTax: 0 })
@@ -67,13 +69,9 @@ const interestRateOptions = [
   { key: '년', value: YEARLY }
 ]
 
-watch(
-  calculateTarget,
-  (value) => {
-    const result = calculator(value)
-    data.value = result.data
-    total.value = result.total
-  },
-  { immediate: true }
-)
+watch(calculateTarget, (value) => {
+  const result = calculator(value)
+  data.value = result.data
+  total.value = result.total
+})
 </script>
