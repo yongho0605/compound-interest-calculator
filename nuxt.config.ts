@@ -2,7 +2,6 @@
 // @ts-ignore
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  ssr: false,
   app: {
     head: {
       title: '복리 이자 계산기',
