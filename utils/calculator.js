@@ -1,10 +1,10 @@
-import { investmentPeriodUnits } from '~/constant.js'
+import { InvestmentPeriodUnits } from '~/constant.js'
 
 const monthsConverter = (unit) => {
   switch (unit) {
-    case investmentPeriodUnits.MONTHLY:
+    case InvestmentPeriodUnits.MONTHLY:
       return 1
-    case investmentPeriodUnits.YEARLY:
+    case InvestmentPeriodUnits.YEARLY:
       return 12
     default:
       break
@@ -13,7 +13,6 @@ const monthsConverter = (unit) => {
 
 const convertToHundredth = (value) => value * 0.01
 const convertToPercentage = (value) => value * 100
-const withholdingTaxRate = 15.4
 const calculateRateOfReturn = (totalAmount, totalInvestment) => {
   const originRORValue = (totalAmount - totalInvestment) / totalInvestment
   const purifiedRORValue = truncateTwoDecimalPlaces(convertToPercentage(originRORValue))
@@ -42,10 +41,19 @@ export const currencyFormatter = (value) => {
 
 export const truncateTwoDecimalPlaces = (value) => parseFloat(value.toFixed(2))
 export const convertToKoreaCurrency = (value) => value.toLocaleString('ko-KR', { style: 'currency', currency: 'KRW' })
-export const calculator = ({ currentInvestmentAmount, monthlyInvestment, InterestRate, InterestUnit, months }) => {
-  let _currentInvestmentAmount = currentInvestmentAmount
+export const calculator = ({
+  initialInvestmentAmount,
+  monthlyInvestment,
+  InterestRate,
+  durationUnit,
+  months,
+  withholdingTaxRate = 15.4
+}) => {
   const result = []
-  const investmentPeriod = months * monthsConverter(InterestUnit)
+  if (isNaN(months)) return false
+
+  let _currentInvestmentAmount = initialInvestmentAmount
+  const investmentPeriod = months * monthsConverter(durationUnit)
   InterestRate = convertToHundredth(InterestRate)
 
   for (let i = 1; i <= investmentPeriod; i++) {
@@ -57,8 +65,10 @@ export const calculator = ({ currentInvestmentAmount, monthlyInvestment, Interes
     result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax: roundedWithholdingTax })
   }
 
+  if (result.length <= 0) return false
+
   const totalWithholdingTax = result.reduce((acc, { withholdingTax }) => acc + withholdingTax, 0)
-  const totalPrincipalInvestment = monthlyInvestment * investmentPeriod
+  const totalPrincipalInvestment = monthlyInvestment * investmentPeriod + initialInvestmentAmount
   const finalHoldingAmount = result[result.length - 1].valuation + result[result.length - 1].dividend
   const rateOfReturn = calculateRateOfReturn(finalHoldingAmount, totalPrincipalInvestment)
 
