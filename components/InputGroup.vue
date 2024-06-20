@@ -11,7 +11,7 @@ defineProps({
     required: true
   }
 })
-const model = defineModel({ required: true })
+const model = defineModel({ type: Object })
 const groupWrapper = ref()
 const inputNodes = []
 
@@ -27,14 +27,18 @@ const findInputOrSelectNodes = (childNodes) => {
 
 const onInputEvent = (evt) => {
   const value = evt.target.value
-  model.value[evt.target.name] = Number(value)
+  if (evt.target.type === 'number') {
+    model.value[evt.target.name] = Number(value)
+  } else if (evt.target.type === 'string' || evt.target.type === 'select-one') {
+    model.value[evt.target.name] = value
+  }
 }
 
 onMounted(() => {
   findInputOrSelectNodes(groupWrapper.value.childNodes)
   for (const input of inputNodes) {
-    if (!input.name) return false
-    input.value = model.value[input.name]
+    if (!input.id) return false
+    input.value = model.value[input.name ?? input.id]
   }
 })
 </script>
