@@ -1,21 +1,27 @@
 <template>
-  <div class="flex h-[40vh] flex-col justify-around gap-4 text-slate-800">
+  <div class="flex h-full flex-col justify-around gap-4 text-slate-800">
     <h1 class="text-4xl">CIRC (Compound Interest Rate Calculator) - 복리 이자 계산기</h1>
-    <InputGroup v-model="investmentInfo" class="flex h-[30vh]">
-      <Input name="initialInvestmentAmount" type="number" suffix="만원" min="1">초기 투자 금액</Input>
-      <Input name="monthlyInvestment" type="number" suffix="만원" min="1">월 투자금액</Input>
-      <Input name="InterestRate" type="number" suffix="%">복리 이자율</Input>
-      <Input name="months" type="number" min="1">
-        투자 기간
-        <template #suffix>
-          <Input
-            name="durationUnit"
-            input-class="w-full rounded border border-slate-600 p-2"
-            type="select"
-            :options="interestRateOptions" />
-        </template>
-      </Input>
-    </InputGroup>
+    <div class="flex h-[10vh]">
+      <InputGroup v-model="investmentInfo" class="flex">
+        <Input name="initialInvestmentAmount" type="number" suffix="만원" min="1">초기 투자 금액</Input>
+        <Input name="monthlyInvestment" type="number" suffix="만원" min="1">월 투자금액</Input>
+        <Input name="InterestRate" type="number" suffix="%">복리 이자율</Input>
+        <Input name="months" type="number" min="1">
+          투자 기간
+          <template #suffix>
+            <Input
+              class="w-full"
+              name="durationUnit"
+              input-class="w-2/3 rounded border border-slate-600 p-2"
+              type="select"
+              :options="interestRateOptions" />
+          </template>
+        </Input>
+      </InputGroup>
+      <InputGroup v-model="investmentInfo.options">
+        <Input name="ISA" type="checkbox">ISA 계좌 활용 여부</Input>
+      </InputGroup>
+    </div>
     <div>
       <div v-show="data?.length" class="flex w-full justify-between">
         <p>
@@ -41,11 +47,8 @@
     </div>
     <div v-if="total" class="flex w-full gap-4 text-xl font-bold">
       <span v-if="total.withholdingTax > 0">총 원천징수 세액: {{ currencyFormatter(total.withholdingTax) }}</span>
-
       <span v-if="total.principalInvestment">총 투자 원금: {{ currencyFormatter(total.principalInvestment) }}</span>
-
       <span v-if="total.finalHoldingAmount">최종 보유금: {{ currencyFormatter(total.finalHoldingAmount) }}</span>
-
       <span v-if="total.rateOfReturn" class="text-red-600">수익률: {{ total.rateOfReturn }}%</span>
     </div>
   </div>
@@ -62,7 +65,9 @@ const investmentInfo = reactive({
   InterestRate: 0,
   durationUnit: MONTHLY,
   months: 1,
-  ISA: false
+  options: {
+    ISA: false
+  }
 })
 const data = ref([])
 const total = ref({})
