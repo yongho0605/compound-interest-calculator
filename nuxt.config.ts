@@ -12,9 +12,10 @@ export default defineNuxtConfig({
         { property: 'og:title', content: '복리 이자 계산기' },
         { property: 'og:type', content: 'website' },
         { property: 'og:description', content: '월배당 주식투자를 가정한 월 복리 이자 계산기' },
-        { property: 'og:image', content: '/image/og-image.png' }
+        { property: 'og:image', content: '/image/calculator_og.png' }
       ]
     }
   },
+  components: [{ path: '~/components', pathPrefix: false }],
   modules: ['@nuxtjs/tailwindcss']
 })
