@@ -17,5 +17,8 @@ export default defineNuxtConfig({
     }
   },
   components: [{ path: '~/components', pathPrefix: false }],
-  modules: ['@nuxtjs/tailwindcss']
+  mdi: {
+    componentName: 'Icon'
+  },
+  modules: ['@nuxtjs/tailwindcss', 'nuxt-mdi']
 })
