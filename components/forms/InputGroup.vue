@@ -5,12 +5,6 @@
 </template>
 
 <script setup>
-defineProps({
-  group: {
-    type: Object,
-    required: true
-  }
-})
 const model = defineModel({ type: Object })
 const groupWrapper = ref()
 const inputNodes = []
@@ -31,6 +25,8 @@ const onInputEvent = (evt) => {
     model.value[evt.target.name] = Number(value)
   } else if (evt.target.type === 'string' || evt.target.type === 'select-one') {
     model.value[evt.target.name] = value
+  } else if (evt.target.type === 'checkbox') {
+    model.value[evt.target.name] = evt.target.checked
   }
 }
 

@@ -1,11 +1,11 @@
 <template>
-  <div class="flex w-[12%] min-w-fit flex-col">
+  <div v-if="type !== 'checkbox'" class="flex w-[12%] min-w-fit flex-col">
     <label :for="name">
       <slot>{{ label }}</slot>
     </label>
     <div class="flex items-center gap-1">
       <input
-        v-if="type !== 'select'"
+        v-if="!['select'].includes(type)"
         :id="name"
         v-model="model"
         :min
@@ -66,5 +66,5 @@ defineProps({
   }
 })
 
-const model = defineModel({ type: String || Number, required: true })
+const model = defineModel({ type: String || Number || Boolean, required: true })
 </script>
