@@ -57,12 +57,16 @@ export const calculator = ({
   InterestRate = convertToHundredth(InterestRate)
 
   for (let i = 1; i <= investmentPeriod; i++) {
-    const dividend = Math.floor(_currentInvestmentAmount * InterestRate)
+    const dividend = _currentInvestmentAmount * InterestRate
     const withholdingTax = dividend * convertToHundredth(withholdingTaxRate)
-    const roundedWithholdingTax = truncateTwoDecimalPlaces(withholdingTax)
 
-    _currentInvestmentAmount = _currentInvestmentAmount + dividend + monthlyInvestment
-    result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax: roundedWithholdingTax })
+    if (i === 1) {
+      _currentInvestmentAmount = _currentInvestmentAmount + monthlyInvestment
+    } else {
+      _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].dividend + monthlyInvestment
+    }
+
+    result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax })
   }
 
   if (result.length <= 0) return false
@@ -75,9 +79,9 @@ export const calculator = ({
   return {
     data: result,
     total: {
-      withholdingTax: truncateTwoDecimalPlaces(totalWithholdingTax),
-      principalInvestment: totalPrincipalInvestment,
-      finalHoldingAmount,
+      withholdingTax: Math.ceil(totalWithholdingTax),
+      principalInvestment: Math.ceil(totalPrincipalInvestment),
+      finalHoldingAmount: Math.ceil(finalHoldingAmount),
       rateOfReturn
     }
   }

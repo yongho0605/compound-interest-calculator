@@ -1,6 +1,14 @@
 <template>
   <div class="flex h-full flex-col justify-around gap-4 text-slate-800">
-    <h1 class="text-4xl">CIRC (Compound Interest Rate Calculator) - 복리 이자 계산기</h1>
+    <div class="flex justify-between">
+      <h1 class="text-3xl">CIRC (Compound Interest Rate Calculator) - 복리 이자 계산기</h1>
+      <NuxtLink
+        class="cursor-pointer rounded p-1 hover:bg-slate-100"
+        to="https://github.com/yongho0605/compound-interest-rate-calculator"
+        target="_blank">
+        <Icon icon="mdiGithub" class="text-3xl" />
+      </NuxtLink>
+    </div>
     <div class="flex h-[10vh]">
       <InputGroup v-model="investmentInfo" class="flex">
         <Input name="initialInvestmentAmount" type="number" suffix="만원" min="1">초기 투자 금액</Input>
@@ -18,9 +26,7 @@
           </template>
         </Input>
       </InputGroup>
-      <InputGroup v-model="investmentInfo.options">
-        <Input name="ISA" type="checkbox">ISA 계좌 활용 여부</Input>
-      </InputGroup>
+      <InputGroup v-model="investmentInfo.options"></InputGroup>
     </div>
     <div>
       <div v-show="data?.length" class="flex w-full justify-between">
@@ -41,7 +47,7 @@
           <td class="border-r border-slate-700">{{ item.month }} 개월차</td>
           <td class="border-r border-slate-700">{{ convertToKoreaCurrency(item.valuation * 10000) }}</td>
           <td class="border-r border-slate-700">{{ convertToKoreaCurrency(item.dividend * 10000) }}</td>
-          <td>{{ convertToKoreaCurrency(truncateTwoDecimalPlaces(item.withholdingTax * 10000)) }}</td>
+          <td>{{ convertToKoreaCurrency(item.withholdingTax * 10000) }}</td>
         </tr>
       </table>
     </div>
@@ -56,14 +62,13 @@
 
 <script setup>
 import { InvestmentPeriodUnits, Tax } from '~/constant.js'
-import { truncateTwoDecimalPlaces, convertToKoreaCurrency, currencyFormatter } from '~/utils/calculator.js'
-const { MONTHLY, YEARLY } = InvestmentPeriodUnits
+import { convertToKoreaCurrency, currencyFormatter } from '~/utils/calculator.js'
 
 const investmentInfo = reactive({
   initialInvestmentAmount: 0,
   monthlyInvestment: 0,
   InterestRate: 0,
-  durationUnit: MONTHLY,
+  durationUnit: InvestmentPeriodUnits.MONTHLY,
   months: 1,
   options: {
     ISA: false
@@ -73,8 +78,8 @@ const data = ref([])
 const total = ref({})
 
 const interestRateOptions = [
-  { key: '개월', value: MONTHLY },
-  { key: '년', value: YEARLY }
+  { key: '개월', value: InvestmentPeriodUnits.MONTHLY },
+  { key: '년', value: InvestmentPeriodUnits.YEARLY }
 ]
 
 const numberInputGuard = (value) => (!value ? 0 : value)
