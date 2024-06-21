@@ -5,3 +5,19 @@
 
 # 복리 이자 계산기 사이트
 **https://frontmusk.com/**
+
+---
+# 사용한 기술 스택
+### Framework
+- Nuxt3 with Tailwindcss
+
+### CI/CD
+- Cloudflare-Pages
+
+### Formatting
+- Eslint and Prettier (github workflow check - push, pr)
+- prettier-plugin-tailwindcss
+- husky and lint-staged
+
+### Icons and UI
+- nuxt-mdi (material design icons)
