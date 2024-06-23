@@ -6,8 +6,9 @@
           :id="checkbox.name"
           :name="checkbox.name"
           type="checkbox"
+          :checked="checkbox.checked ?? false"
           :disabled="checkbox.disabled"
-          class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 disabled:bg-gray-100" />
+          class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 disabled:text-gray-200" />
       </div>
       <div class="ml-3 text-sm leading-6">
         <label :for="checkbox.name" class="font-medium" :class="checkbox.disabled ? 'text-gray-300' : 'text-gray-900'">

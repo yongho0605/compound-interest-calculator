@@ -7,8 +7,8 @@
       <input
         v-if="!['select'].includes(type)"
         :id="name"
-        :min="Number(min)"
-        :max="Number(max)"
+        :min
+        :max
         :type
         :name
         class="w-1/2 rounded border border-slate-600 py-0.5 pl-2"
