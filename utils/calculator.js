@@ -1,4 +1,4 @@
-import { InvestmentPeriodUnits } from '~/constant.js'
+import { InvestmentPeriodUnits, Tax } from '~/constant.js'
 
 const monthsConverter = (unit) => {
   switch (unit) {
@@ -47,26 +47,33 @@ export const calculator = ({
   InterestRate,
   durationUnit,
   months,
-  withholdingTaxRate = 15.4
+  withholdingTaxRate = Tax.DEFAULT_WITHHOLDING_TAX_RATE,
+  options: { ISA, applyWithholdingTax }
 }) => {
   const result = []
   if (isNaN(months)) return false
 
   let _currentInvestmentAmount = initialInvestmentAmount
   const investmentPeriod = months * monthsConverter(durationUnit)
-  InterestRate = convertToHundredth(InterestRate)
 
   for (let i = 1; i <= investmentPeriod; i++) {
-    const dividend = _currentInvestmentAmount * InterestRate
+    const dividend = _currentInvestmentAmount * convertToHundredth(InterestRate)
     const withholdingTax = dividend * convertToHundredth(withholdingTaxRate)
+    const afterTaxDividend = dividend - withholdingTax
 
     if (i === 1) {
       _currentInvestmentAmount = _currentInvestmentAmount + monthlyInvestment
+    } else if (applyWithholdingTax && !ISA) {
+      _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].afterTaxDividend + monthlyInvestment
     } else {
       _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].dividend + monthlyInvestment
     }
 
-    result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax })
+    if (applyWithholdingTax && !ISA) {
+      result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax, afterTaxDividend })
+    } else {
+      result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax })
+    }
   }
 
   if (result.length <= 0) return false
@@ -79,9 +86,9 @@ export const calculator = ({
   return {
     data: result,
     total: {
-      withholdingTax: Math.ceil(totalWithholdingTax),
-      principalInvestment: Math.ceil(totalPrincipalInvestment),
-      finalHoldingAmount: Math.ceil(finalHoldingAmount),
+      withholdingTax: Math.floor(totalWithholdingTax),
+      principalInvestment: Math.floor(totalPrincipalInvestment),
+      finalHoldingAmount: Math.floor(finalHoldingAmount),
       rateOfReturn
     }
   }
