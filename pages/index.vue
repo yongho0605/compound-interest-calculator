@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full flex-col justify-around gap-4 text-slate-800">
     <div class="flex justify-between">
-      <h1 class="text-3xl">CIRC (Compound Interest Rate Calculator) - 복리 이자 계산기</h1>
+      <h1 class="text-3xl">CIC (Compound Interest Calculator) - 복리 이자 계산기</h1>
       <NuxtLink
         to="https://github.com/yongho0605/compound-interest-rate-calculator"
         target="_blank"
