@@ -28,17 +28,3 @@ defineProps({
   }
 })
 </script>
-
-<style scoped>
-.p-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.p-accordion-header-link {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-</style>
