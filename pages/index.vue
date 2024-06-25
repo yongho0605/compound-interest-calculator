@@ -70,7 +70,7 @@
             <span
               v-if="extra.taxExemptLimitExceeded === item.month"
               class="absolute left-0 top-1.5 self-center rounded-full bg-red-700 px-2 text-sm text-gray-100">
-              비과세 초과
+              비과세 한도 초과
             </span>
             {{ item.month }} 개월차
           </td>
@@ -108,9 +108,9 @@ import { InvestmentPeriodUnits, Tax } from '~/constant.js'
 import { convertToKoreaCurrency, currencyFormatter, applyTaxExemption } from '~/utils/calculator.js'
 
 const investmentInfo = reactive({
-  initialInvestmentAmount: 710,
+  initialInvestmentAmount: 1000,
   monthlyInvestment: 150,
-  InterestRate: 1.25,
+  InterestRate: 1,
   durationUnit: InvestmentPeriodUnits.YEARLY,
   months: 10,
   taxExemptLimit: 0,
