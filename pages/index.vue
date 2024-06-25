@@ -26,7 +26,7 @@
           </template>
         </Input>
         <Input v-if="investmentInfo.options.ISA" name="taxExemptLimit" type="number" suffix="만원" :min="0">
-          비과세 한도
+          비과세
         </Input>
       </InputGroup>
       <InputGroup v-model="investmentInfo.options" class="flex max-h-fit">
@@ -64,13 +64,13 @@
           class="grid border-t"
           :class="[
             item.afterTaxDividend ? 'grid-cols-5' : 'grid-cols-4',
-            extra.taxExemptLimitExceeded === item.month ? 'border-t-4 border-red-700' : 'border-slate-700'
+            extra.taxExemptLimitExceeded + 1 === item.month ? 'border-t-4 border-red-700' : 'border-slate-700'
           ]">
           <td class="relative border-r border-slate-700">
             <span
               v-if="extra.taxExemptLimitExceeded === item.month"
-              class="absolute left-0 top-1 self-center rounded-full bg-red-700 px-2 text-sm text-gray-100">
-              비과세 한도 초과 라인
+              class="absolute left-0 top-1.5 self-center rounded-full bg-red-700 px-2 text-sm text-gray-100">
+              비과세 초과
             </span>
             {{ item.month }} 개월차
           </td>
@@ -83,11 +83,21 @@
         </tr>
       </table>
     </div>
-    <div v-if="total" class="flex w-full gap-4 text-xl font-bold">
-      <span v-if="total.withholdingTax > 0">세액: {{ currencyFormatter(total.withholdingTax) }}</span>
-      <span v-if="total.principalInvestment">투자 원금: {{ currencyFormatter(total.principalInvestment) }}</span>
-      <span v-if="total.finalHoldingAmount">보유금: {{ currencyFormatter(total.finalHoldingAmount) }}</span>
-      <span v-if="total.rateOfReturn" class="text-red-600">수익률: {{ total.rateOfReturn }}%</span>
+    <div v-show="total" class="flex w-full gap-4 text-xl font-bold">
+      <span v-show="total.withholdingTax > 0">
+        예상 총 세액:
+        {{
+          investmentInfo.options.ISA
+            ? currencyFormatter(
+                applyTaxExemption(total.withholdingTax, investmentInfo.taxExemptLimit, withholdingTaxRate)
+              )
+            : currencyFormatter(total.withholdingTax)
+        }}
+        <small v-if="investmentInfo.options.ISA" class="text-sm tracking-tight">(비과세 & 변경된 세율 적용됨)</small>
+      </span>
+      <span v-show="total.principalInvestment">투자 원금: {{ currencyFormatter(total.principalInvestment) }}</span>
+      <span v-show="total.finalHoldingAmount">보유금: {{ currencyFormatter(total.finalHoldingAmount) }}</span>
+      <span v-show="total.rateOfReturn" class="text-red-600">수익률: {{ total.rateOfReturn }}%</span>
     </div>
   </div>
 </template>
@@ -95,7 +105,7 @@
 <script setup>
 import CheckboxInputs from '~/components/forms/CheckboxInputs.vue'
 import { InvestmentPeriodUnits, Tax } from '~/constant.js'
-import { convertToKoreaCurrency, currencyFormatter } from '~/utils/calculator.js'
+import { convertToKoreaCurrency, currencyFormatter, applyTaxExemption } from '~/utils/calculator.js'
 
 const investmentInfo = reactive({
   initialInvestmentAmount: 710,
@@ -156,7 +166,6 @@ watch(
     data.value = result.data
     total.value = result.total
     extra.value = result.extra
-    console.log('taxExemptLimitExceeded', extra.value.taxExemptLimitExceeded)
   },
   { immediate: true }
 )

@@ -23,6 +23,11 @@ const calculateRateOfReturn = (totalAmount, totalInvestment) => {
   return purifiedRORValue
 }
 
+export const applyTaxExemption = (originAmount, taxExemptLimit, applicableTaxRate) => {
+  const taxedAmount = originAmount - taxExemptLimit
+  return Math.floor(taxedAmount - taxedAmount * convertToHundredth(applicableTaxRate))
+}
+
 export const currencyFormatter = (value) => {
   const tenK = '만 원'
   const hundredMillion = '억 원'
