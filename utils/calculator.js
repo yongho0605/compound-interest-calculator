@@ -47,6 +47,7 @@ export const calculator = ({
   InterestRate,
   durationUnit,
   months,
+  taxExemptLimit,
   withholdingTaxRate = Tax.DEFAULT_WITHHOLDING_TAX_RATE,
   options: { ISA, applyWithholdingTax }
 }) => {
@@ -78,7 +79,16 @@ export const calculator = ({
 
   if (result.length <= 0) return false
 
-  const totalWithholdingTax = result.reduce((acc, { withholdingTax }) => acc + withholdingTax, 0)
+  let taxExemptLimitExceeded
+  const totalWithholdingTax = result.reduce((acc, { withholdingTax, month }) => {
+    const sumValue = acc + withholdingTax
+    if (ISA && sumValue > taxExemptLimit && taxExemptLimitExceeded === undefined) {
+      taxExemptLimitExceeded = month
+    }
+
+    return sumValue
+  }, 0)
+
   const totalPrincipalInvestment = monthlyInvestment * investmentPeriod + initialInvestmentAmount
   const finalHoldingAmount = result[result.length - 1].valuation + result[result.length - 1].dividend
   const rateOfReturn = calculateRateOfReturn(finalHoldingAmount, totalPrincipalInvestment)
@@ -90,6 +100,9 @@ export const calculator = ({
       principalInvestment: Math.floor(totalPrincipalInvestment),
       finalHoldingAmount: Math.floor(finalHoldingAmount),
       rateOfReturn
+    },
+    extra: {
+      taxExemptLimitExceeded
     }
   }
 }

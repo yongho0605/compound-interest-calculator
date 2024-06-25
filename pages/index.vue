@@ -25,6 +25,9 @@
               :options="interestRateOptions" />
           </template>
         </Input>
+        <Input v-if="investmentInfo.options.ISA" name="taxExemptLimit" type="number" suffix="만원" :min="0">
+          비과세 한도
+        </Input>
       </InputGroup>
       <InputGroup v-model="investmentInfo.options" class="flex max-h-fit">
         <CheckboxInputs :checkbox-list="checkboxList"></CheckboxInputs>
@@ -58,9 +61,19 @@
         <tr
           v-for="item in data"
           :key="item.month"
-          class="grid border-t border-slate-700"
-          :class="item.afterTaxDividend ? 'grid-cols-5' : 'grid-cols-4'">
-          <td class="border-r border-slate-700">{{ item.month }} 개월차</td>
+          class="grid border-t"
+          :class="[
+            item.afterTaxDividend ? 'grid-cols-5' : 'grid-cols-4',
+            extra.taxExemptLimitExceeded === item.month ? 'border-t-4 border-red-700' : 'border-slate-700'
+          ]">
+          <td class="relative border-r border-slate-700">
+            <span
+              v-if="extra.taxExemptLimitExceeded === item.month"
+              class="absolute left-0 top-1 self-center rounded-full bg-red-700 px-2 text-sm text-gray-100">
+              비과세 한도 초과 라인
+            </span>
+            {{ item.month }} 개월차
+          </td>
           <td class="border-r border-slate-700">{{ convertToKoreaCurrency(item.valuation * 10000) }}</td>
           <td v-if="item.afterTaxDividend" class="border-r border-slate-700">
             {{ convertToKoreaCurrency(item.afterTaxDividend * 10000) }}
@@ -86,20 +99,22 @@ import { convertToKoreaCurrency, currencyFormatter } from '~/utils/calculator.js
 
 const investmentInfo = reactive({
   initialInvestmentAmount: 710,
-  monthlyInvestment: 80,
+  monthlyInvestment: 150,
   InterestRate: 1.25,
   durationUnit: InvestmentPeriodUnits.YEARLY,
-  months: 6,
+  months: 10,
+  taxExemptLimit: 0,
   options: {
     ISA: false,
     applyWithholdingTax: false
   }
 })
+
 const withholdingTaxRate = computed(() =>
   investmentInfo.options.ISA ? Tax.ISA_TAX_RATE : Tax.DEFAULT_WITHHOLDING_TAX_RATE
 )
-const data = ref([])
-const total = ref({})
+
+const [data, total, extra] = [ref([]), ref({}), ref({})]
 
 const interestRateOptions = [
   { key: '개월', value: InvestmentPeriodUnits.MONTHLY },
@@ -135,11 +150,13 @@ watch(
       newValue[key] = numberInputGuard(newValue[key])
     }
 
-    const result = calculator({ ...newValue, withholdingTaxRate: Tax.DEFAULT_WITHHOLDING_TAX_RATE })
+    const result = calculator({ ...newValue })
     if (!result) return false
 
     data.value = result.data
     total.value = result.total
+    extra.value = result.extra
+    console.log('taxExemptLimitExceeded', extra.value.taxExemptLimitExceeded)
   },
   { immediate: true }
 )
