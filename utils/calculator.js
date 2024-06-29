@@ -63,17 +63,20 @@ export const calculator = ({
   const investmentPeriod = months * monthsConverter(durationUnit)
 
   for (let i = 1; i <= investmentPeriod; i++) {
+    _currentInvestmentAmount += monthlyInvestment
+
+    if (i !== 1) {
+      if (applyWithholdingTax && !ISA) {
+        _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].afterTaxDividend
+      } else {
+        _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].dividend
+      }
+    }
+
     const dividend = _currentInvestmentAmount * convertToHundredth(InterestRate)
+
     const withholdingTax = dividend * convertToHundredth(withholdingTaxRate)
     const afterTaxDividend = dividend - withholdingTax
-
-    if (i === 1) {
-      _currentInvestmentAmount = _currentInvestmentAmount + monthlyInvestment
-    } else if (applyWithholdingTax && !ISA) {
-      _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].afterTaxDividend + monthlyInvestment
-    } else {
-      _currentInvestmentAmount = _currentInvestmentAmount + result[i - 2].dividend + monthlyInvestment
-    }
 
     if (applyWithholdingTax && !ISA) {
       result.push({ month: i, valuation: _currentInvestmentAmount, dividend, withholdingTax, afterTaxDividend })
